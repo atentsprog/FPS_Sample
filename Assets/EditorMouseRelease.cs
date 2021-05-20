@@ -7,7 +7,6 @@ using UnityEngine;
 public class EditorMouseRelease : MonoBehaviour
 {
     FpsControllerLPFP controller;
-    // Start is called before the first frame update
     void Start()
     {
         controller = GetComponent<FpsControllerLPFP>();
