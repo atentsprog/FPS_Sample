@@ -14,11 +14,11 @@ TagManager:
   - 
   - Water
   - UI
-  - 6
-  - 7
-  - Gun Camera
-  - 9
-  - 10
+  - WeaponLayer
+  - ProjectileCollider
+  - 
+  - 
+  - 
   - 
   - 
   - 
