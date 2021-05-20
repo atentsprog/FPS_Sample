@@ -68,6 +68,15 @@ public class BulletScript : MonoBehaviour {
 			//Destroy bullet object
 			Destroy(gameObject);
 		}
+
+		//If bullet collides with "Target" tag
+		if (collision.transform.tag == "Enemy")
+		{
+			//Toggle "isHit" on target object
+			collision.transform.GetComponent<Enemy>().OnHit(transform.position);
+			Destroy(gameObject);
+		}
+
 	}
 
 	private IEnumerator DestroyTimer () 

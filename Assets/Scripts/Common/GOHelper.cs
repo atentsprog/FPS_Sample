@@ -10,44 +10,55 @@ public class GOHelper : MonoBehaviour
     /// </summary>
     public float destroyTime;
 
+    public bool OnAwakeLog;
+    public bool OnStartLog;
     public bool OnEnableLog;
     public bool OnDisableLog;
     public bool OnDestroyLog;
     public bool StopOnLog; // 로그 발생시 멈춤
+
+    private void Awake()
+    {
+        if (OnAwakeLog)
+            WriteLog("Awake");
+    }
 
     // 업데이트 직전에
     private void Start()
     {
         if (destroyTime > 0)
             Destroy(gameObject, destroyTime);
+
+        if (OnStartLog)
+            WriteLog("Start");
     }
 
     // 게임 오브젝트 활성화될때 
     private void OnEnable()
     {
         if (OnDestroyLog)
-            WriteLog();
+            WriteLog("OnEnable");
     }
 
     // 게임 오브젝트 비활성화될때
     private void OnDisable()
     {
         if (OnDisableLog)
-            WriteLog();
+            WriteLog("OnDisable");
     }
 
     // 게임 오브젝트 파괴될때
     private void OnDestroy()
     {
         if (OnDestroyLog)
-            WriteLog();
+            WriteLog("OnDestroy");
     }
 
-    private void WriteLog()
+    private void WriteLog(string log)
     {
         if (StopOnLog)
-            Debug.LogError(transform.GetPath(), transform);
+            Debug.LogError(log +":"+ transform.GetPath(), transform);
         else
-            Debug.Log(transform.GetPath());
+            Debug.Log(log + ":" + transform.GetPath());
     }
 }
