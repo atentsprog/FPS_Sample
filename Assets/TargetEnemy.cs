@@ -5,7 +5,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.AI;
 
-public class TargetEnemy : MonoBehaviour
+public partial class TargetEnemy : MonoBehaviour
 {
     public Transform player;
     public NavMeshAgent agent;
@@ -56,7 +56,7 @@ public class TargetEnemy : MonoBehaviour
             yield return null;
             while (true)
             {
-                if (agent.remainingDistance == 0)
+                if (agent.remainingDistance < 0.1f)
                 {
                     Debug.Log("도착");
                     // 2번째 웨이 포인트로 이동.
@@ -72,8 +72,15 @@ public class TargetEnemy : MonoBehaviour
                     bool insideViewingAngle = false;
                     // 시야각에 들어왔는지 확인하는 로직 넣자.
 
+                    Vector3 targetDir = player.position - transform.position;
+                    targetDir.Normalize();
+                    float angle = Vector3.Angle(targetDir, transform.forward);
+                    if (Mathf.Abs(angle) <= viewingAngle * 0.5f)
+                    {
+                        insideViewingAngle = true;
+                    }
 
-                    if(insideViewingAngle)
+                    if (insideViewingAngle)
                     { 
                         Debug.LogWarning("찾았다 -> 추적 상태로 전환");
                     }
@@ -82,36 +89,6 @@ public class TargetEnemy : MonoBehaviour
                 yield return null;
             }
             wayPointIndex++;
-        }
-    }
-    private IEnumerator ChangeSpeed(float stopTime)
-    {
-        agent.speed = 0;
-        yield return new WaitForSeconds(stopTime);
-        agent.speed = moveSpeed;
-    }
-
-    public GameObject attackedEffect;
-    public GameObject destroyEffect;
-    // 총알에 맞으면 잠시 0.3초 멈추자.
-    public int hp = 3;
-
-    internal void OnHit()
-    {
-        Debug.Log("OnHit;" + name, transform);
-        hp--;
-
-        if( hp > 0)
-        {
-            StartCoroutine(ChangeSpeed(0.3f));
-            // 총알 맞을때 이펙트 보여주자.
-            Instantiate(attackedEffect, transform.position, transform.rotation);
-        }
-        else
-        {
-            // HP를 추가해서 3대 맞으면 폭팔.
-            Instantiate(destroyEffect, transform.position, transform.rotation);
-            Destroy(gameObject);
         }
     }
 }
