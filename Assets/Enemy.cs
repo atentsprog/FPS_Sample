@@ -6,6 +6,50 @@ using UnityEngine;
 using UnityEngine.AI;
 
 
+#if UNITY_EDITOR
+using UnityEditor;
+
+[CustomEditor(typeof(Enemy))]
+public class EditorGUI_Enemy : Editor
+{
+    void OnSceneGUI()
+    {
+        Enemy item = (Enemy)target;
+        Transform tr = item.transform;
+        Handles.color = Color.red;
+
+        // 탐색 가능 거리 표시
+        DrawViewingAngle(item, tr);
+
+
+        // 지금 이동 하는 타겟 위치로 직선 긋기.
+        DrawMoveToTarget(item, tr);
+
+        // 지금 이동 하는 NavAgent의 위치에 경로 표시하기.
+    }
+
+
+    private static void DrawMoveToTarget(Enemy item, Transform tr)
+    {
+        if (item.moveToTarget != null)
+            Handles.DrawLine(tr.position, item.moveToTarget.position);
+    }
+
+    private static void DrawViewingAngle(Enemy item, Transform tr)
+    {
+        float halfAngle = item.viewingAngle * 0.5f;
+
+        // 아크 그리기
+        Handles.DrawWireArc(tr.position, tr.up, tr.forward.AngleToYDirection(-halfAngle), item.viewingAngle, item.viewingDistance);
+        item.viewingDistance = (float)Handles.ScaleValueHandle(item.viewingDistance, tr.position + tr.forward * item.viewingDistance, tr.rotation, 1, Handles.ConeHandleCap, 1);
+
+        // 아크의 왼쪽 오른쪽 직선 그리기
+        Handles.DrawLine(tr.position, tr.forward.AngleToYDirection(-halfAngle) * item.viewingDistance);     // 왼쪽선 그리기.
+        Handles.DrawLine(tr.position, tr.forward.AngleToYDirection(halfAngle) * item.viewingDistance);      // 오른쪽선 그리기.
+    }
+}
+#endif
+
 
 public class Enemy : MonoBehaviour
 {
@@ -13,17 +57,10 @@ public class Enemy : MonoBehaviour
     public NavMeshAgent agent;
     private float moveSpeed;
 
-    public float seeDistance = 3;
-    public float seeAngle = 90;
-    //void OnDrawGizmos() // : 선택하지 않았을때도 기즈모를 보이게 하는 함수.
-    //{
-    //    Gizmos.DrawWireSphere(transform.position, seeDistance);
+    public float viewingDistance = 3;
+    public float viewingAngle = 90;
 
-    //    Vector3.RotateTowards(transform.position, transform.forward, )
-    //    Vector3 rightAngle = transform.position + (transform.forward * seeDistance)
-    //    Gizmos.DrawLine(transform.position, transform.forward)
-    //}
-    /// 상태 1) 로밍 : 지정된 웨이 포인트 이동, 
+    /// 상태 1) 페트롤 : 지정된 웨이 포인트 이동, 
     ///     로밍이 끝나는 탐색 조건 : 
     ///         1. 시야 범위 안에 적이 들어 옴 ->  추적으로 전환.
     ///         2. 소리 듣는 범위 안에서 총소리 발생하면 해당 방향으로 이동 -> 지정위치 이동으로 전환
@@ -47,34 +84,106 @@ public class Enemy : MonoBehaviour
     ///     hp가 남았는가? 
     ///         Yes : 피격 모션 재생 -> 추적으로 전환
     ///         No : 죽는 모션 재생 -> FSM종료, 파괴
+    ///         
+    public enum FsmState
+    {
+        Petrol,             // 페트롤
+        Chase,              // 추적
+        MoveToLocation,     // 지정위치 이동
+        SearchNeardistance, // 근거리 탐색
+        ReturnPetrol,       // 원래 위치 복귀
+        Attack,             // 공격
+        Attacked            // 피격
+    }
+    //Dictionary<FsmState, Func<IEnumerator>> fsmAction = new Dictionary<FsmState, Func<IEnumerator>>();
 
+    //public bool findedTarget = false;
+    //private void Update()
+    //{
+    //    findedTarget = false;
+    //    // 거리안에 있는지 확인.
+    //    float distance = Vector3.Distance(transform.position, target.position);
+    //    if (distance < viewingDistance)
+    //    {
+    //        // 각도 안에 있는지 확인
+    //        Vector3 targetDir = target.position - transform.position;
+    //        targetDir.Normalize();
+    //        float angle = Vector3.Angle(targetDir, transform.forward);
+    //        if (Mathf.Abs(angle) <= viewingAngle * 0.5f)
+    //            findedTarget = true;
+    //    }
+    //}
     IEnumerator Start()
     {
         moveSpeed = agent.speed;
+
+        //fsmAction[FsmState.Petrol               ] = PetrolCo;
+        //fsmAction[FsmState.Chase                ] = ChaseCo;
+        //fsmAction[FsmState.MoveToLocation       ] = MoveToLocationCo;
+        //fsmAction[FsmState.SearchNeardistance   ] = SearchNeardistanceCo;
+        //fsmAction[FsmState.ReturnPetrol         ] = ReturnPetrolCo;
+        //fsmAction[FsmState.Attack               ] = AttackCo;
+        //fsmAction[FsmState.Attacked             ] = AttackedCo;
 
         while (true)
         {
 
             //agent.destination = target.transform.position;
-            yield return StartCoroutine(RoamingCo()); // 걸어 다니다
+            yield return StartCoroutine(PetrolCo()); // 걸어 다니다
         }
     }
 
 
     public List<Transform> wayPoints;
-    int currentWayPointIndex;
+    public int currentWayPointIndex = 0;
+    public Transform moveToTarget;
     /// 상태 1) 로밍 : 지정된 웨이 포인트 이동, 
     ///     로밍이 끝나는 탐색 조건 : 
     ///         1. 시야 범위 안에 적이 들어 옴 ->  추적으로 전환.
     ///         2. 소리 듣는 범위 안에서 총소리 발생하면 해당 방향으로 이동 -> 지정위치 이동으로 전환
-    private IEnumerator RoamingCo()
+    private IEnumerator PetrolCo()
     {
-        // 지정된 웨이 포인트 이동.
-        //wayPoints()
-        yield return null;
+        // 지정된 웨이 포인트들을 순회 하면서 무한히 이동.
+        while (true)
+        {
+            currentWayPointIndex++;
+            if (currentWayPointIndex >= wayPoints.Count)
+                currentWayPointIndex = 0;
+            moveToTarget = wayPoints[currentWayPointIndex];
 
-        // 자기 주변 랜덤 탐색.
+            do
+            {
+                agent.destination = moveToTarget.position;
+                yield return null;
+
+                //시야 범위 안에 적이 있는가?
+                if (target)
+                {
+
+                    // 거리안에 있는지 확인.
+                    float distance = Vector3.Distance(transform.position, target.position);
+                    if (distance < viewingDistance)
+                    {
+                        // 각도 안에 있는지 확인
+                        Vector3 targetDir = target.position - transform.position;
+                        targetDir.Normalize();
+                        float angle = Vector3.Angle(targetDir, transform.forward);
+                        if (Mathf.Abs(angle) <= viewingAngle * 0.5f)
+                        {
+                            //Fsm을 추적으로 전환.
+                        }
+                    }
+                }
+
+            } while (agent.remainingDistance > 1);
+        }
     }
+    private IEnumerator ChaseCo() { yield return null; }
+    private IEnumerator MoveToLocationCo() { yield return null; }
+    private IEnumerator SearchNeardistanceCo() { yield return null; }
+    private IEnumerator ReturnPetrolCo() { yield return null; }
+    private IEnumerator AttackCo() { yield return null; }
+    private IEnumerator AttackedCo() { yield return null; }
 
     #region 피격
     public GameObject attackedEffect;
