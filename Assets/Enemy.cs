@@ -16,36 +16,46 @@ public class EditorGUI_Enemy : Editor
     {
         Enemy item = (Enemy)target;
         Transform tr = item.transform;
-        Handles.color = Color.red;
 
         // 탐색 가능 거리 표시
-        DrawViewingAngle(item, tr);
+        Handles.color = Color.yellow;
+        DrawArc(tr, item.viewingAngle, item.viewingDistance);
+
+        // 공격 가능 거리 표시
+        Handles.color = Color.red;
+        DrawArc(tr, item.viewingAngle, item.attackDistance);
 
 
         // 지금 이동 하는 타겟 위치로 직선 긋기.
         DrawMoveToTarget(item, tr);
 
         // 지금 이동 하는 NavAgent의 위치에 경로 표시하기.
+
+
+        // 씬뷰에서 viewingDistance 조정가능하게 함.
+        item.viewingDistance = (float)Handles.ScaleValueHandle(item.viewingDistance, tr.position + tr.forward * item.viewingDistance, tr.rotation, 1, Handles.ConeHandleCap, 1);
     }
 
 
     private static void DrawMoveToTarget(Enemy item, Transform tr)
     {
         if (item.moveToTarget != null)
+        {
+            Handles.color = Color.red;
             Handles.DrawLine(tr.position, item.moveToTarget.position);
+        }
     }
 
-    private static void DrawViewingAngle(Enemy item, Transform tr)
+    private static void DrawArc(Transform tr, float angle, float distance)
     {
-        float halfAngle = item.viewingAngle * 0.5f;
+        float halfAngle = angle * 0.5f;
 
         // 아크 그리기
-        Handles.DrawWireArc(tr.position, tr.up, tr.forward.AngleToYDirection(-halfAngle), item.viewingAngle, item.viewingDistance);
-        item.viewingDistance = (float)Handles.ScaleValueHandle(item.viewingDistance, tr.position + tr.forward * item.viewingDistance, tr.rotation, 1, Handles.ConeHandleCap, 1);
+        Handles.DrawWireArc(tr.position, tr.up, tr.forward.AngleToYDirection(-halfAngle), angle, distance);
 
         // 아크의 왼쪽 오른쪽 직선 그리기
-        Handles.DrawLine(tr.position, tr.position + tr.forward.AngleToYDirection(-halfAngle) * item.viewingDistance);     // 왼쪽선 그리기.
-        Handles.DrawLine(tr.position, tr.position + tr.forward.AngleToYDirection(halfAngle) * item.viewingDistance);      // 오른쪽선 그리기.
+        Handles.DrawLine(tr.position, tr.position + tr.forward.AngleToYDirection(-halfAngle) * distance);     // 왼쪽선 그리기.
+        Handles.DrawLine(tr.position, tr.position + tr.forward.AngleToYDirection(halfAngle) * distance);      // 오른쪽선 그리기.
     }
 }
 #endif
@@ -53,12 +63,15 @@ public class EditorGUI_Enemy : Editor
 
 public class Enemy : MonoBehaviour
 {
-    public Transform target;
+    public Animator animator;
+    public Transform attackTarget;
     public NavMeshAgent agent;
     private float moveSpeed;
 
     public float viewingDistance = 3;
     public float viewingAngle = 90;
+
+    public float attackDistance = 2;
 
     /// 상태 1) 페트롤 : 지정된 웨이 포인트 이동, 
     ///     로밍이 끝나는 탐색 조건 : 
@@ -87,6 +100,7 @@ public class Enemy : MonoBehaviour
     ///         
     public enum FsmState
     {
+        None,               // 할당전 초기값
         Petrol,             // 페트롤
         Chase,              // 추적
         MoveToLocation,     // 지정위치 이동
@@ -95,44 +109,67 @@ public class Enemy : MonoBehaviour
         Attack,             // 공격
         Attacked            // 피격
     }
-    //Dictionary<FsmState, Func<IEnumerator>> fsmAction = new Dictionary<FsmState, Func<IEnumerator>>();
 
-    //public bool findedTarget = false;
-    //private void Update()
-    //{
-    //    findedTarget = false;
-    //    // 거리안에 있는지 확인.
-    //    float distance = Vector3.Distance(transform.position, target.position);
-    //    if (distance < viewingDistance)
-    //    {
-    //        // 각도 안에 있는지 확인
-    //        Vector3 targetDir = target.position - transform.position;
-    //        targetDir.Normalize();
-    //        float angle = Vector3.Angle(targetDir, transform.forward);
-    //        if (Mathf.Abs(angle) <= viewingAngle * 0.5f)
-    //            findedTarget = true;
-    //    }
-    //}
+    Dictionary<FsmState, Func<IEnumerator>> fsmAction = new Dictionary<FsmState, Func<IEnumerator>>();
+    Dictionary<FsmState, Action> fsmEndAction = new Dictionary<FsmState, Action>();
     IEnumerator Start()
     {
         moveSpeed = agent.speed;
 
-        //fsmAction[FsmState.Petrol               ] = PetrolCo;
-        //fsmAction[FsmState.Chase                ] = ChaseCo;
-        //fsmAction[FsmState.MoveToLocation       ] = MoveToLocationCo;
-        //fsmAction[FsmState.SearchNeardistance   ] = SearchNeardistanceCo;
-        //fsmAction[FsmState.ReturnPetrol         ] = ReturnPetrolCo;
-        //fsmAction[FsmState.Attack               ] = AttackCo;
-        //fsmAction[FsmState.Attacked             ] = AttackedCo;
+        fsmAction[FsmState.Petrol] = PetrolCo;
+        fsmAction[FsmState.Chase] = ChaseCo;
+        fsmAction[FsmState.MoveToLocation] = MoveToLocationCo;
+        fsmAction[FsmState.SearchNeardistance] = SearchNeardistanceCo;
+        fsmAction[FsmState.ReturnPetrol] = ReturnPetrolCo;
+        fsmAction[FsmState.Attack] = AttackCo;
+        fsmAction[FsmState.Attacked] = AttackedCo;
+
+        fsmEndAction[FsmState.Petrol] = OnPetrolEnd;
+
+        //FSM = FsmState.Petrol;
+        FSM = FsmState.Petrol;
 
         while (true)
         {
-
-            //agent.destination = target.transform.position;
-            yield return StartCoroutine(PetrolCo()); // 걸어 다니다
+            fsmHandle = StartCoroutine(currentFSM());
+            yield return fsmHandle;
+            Debug.Log(fsm +"이 시작될 차례");
         }
     }
 
+    private void OnPetrolEnd()
+    {
+        Debug.Log("페트롤에 끝났을때 항상 호출되는 함수, " +
+            "특정 상태가 끝나면 항상 설저해줘야 하는게 있을때만 일부 상태에대해 추가한다");
+    }
+
+    private void Update()
+    {
+        
+    }
+
+    Coroutine fsmHandle;
+    Func<IEnumerator> currentFSM;
+    FsmState fsm;
+    FsmState FSM
+    {
+        set
+        {
+            if (fsm == value)
+                return;
+
+            Debug.Log($"{name}, FSM : {fsm} -> {value}");
+
+            if (fsmEndAction.ContainsKey(fsm))
+                fsmEndAction[fsm]();
+
+            fsm = value;
+
+            if (fsmHandle != null)
+                StopCoroutine(fsmHandle);
+            currentFSM = fsmAction[fsm];
+        }
+    }
 
     public List<Transform> wayPoints;
     public int currentWayPointIndex = 0;
@@ -143,6 +180,7 @@ public class Enemy : MonoBehaviour
     ///         2. 소리 듣는 범위 안에서 총소리 발생하면 해당 방향으로 이동 -> 지정위치 이동으로 전환
     private IEnumerator PetrolCo()
     {
+        animator.Play("run", 0, 0);
         // 지정된 웨이 포인트들을 순회 하면서 무한히 이동.
         while (true)
         {
@@ -157,20 +195,22 @@ public class Enemy : MonoBehaviour
                 yield return null;
 
                 //시야 범위 안에 적이 있는가?
-                if (target)
+                if (attackTarget)
                 {
 
                     // 거리안에 있는지 확인.
-                    float distance = Vector3.Distance(transform.position, target.position);
+                    float distance = Vector3.Distance(transform.position, attackTarget.position);
                     if (distance < viewingDistance)
                     {
                         // 각도 안에 있는지 확인
-                        Vector3 targetDir = target.position - transform.position;
+                        Vector3 targetDir = attackTarget.position - transform.position;
                         targetDir.Normalize();
                         float angle = Vector3.Angle(targetDir, transform.forward);
                         if (Mathf.Abs(angle) <= viewingAngle * 0.5f)
                         {
                             //Fsm을 추적으로 전환.
+                            FSM = FsmState.Chase;
+                            yield break;
                         }
                     }
                 }
@@ -178,7 +218,37 @@ public class Enemy : MonoBehaviour
             } while (agent.remainingDistance > 1);
         }
     }
-    private IEnumerator ChaseCo() { yield return null; }
+
+
+
+    /// <summary>
+    /// 추적 : 추적 대상을 공격 가능한 거리보다 가까워질때까지 추적.
+    /// 끝나는 경우 :
+    /// 추적 대상이 지정한 범위안에 들어옴 -> 공격으로 전환
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator ChaseCo()
+    {
+        while (true)
+        {
+            if (attackTarget == null)
+            {
+                FSM = FsmState.Petrol;
+                yield break;
+            }
+
+            agent.destination = attackTarget.position;
+            
+            float distance = Vector3.Distance(transform.position, attackTarget.position);
+            if (distance < attackDistance)
+            {
+                FSM = FsmState.Attack;
+                break;
+            }
+
+            yield return null;
+        }
+    }
     private IEnumerator MoveToLocationCo() { yield return null; }
     private IEnumerator SearchNeardistanceCo() { yield return null; }
     private IEnumerator ReturnPetrolCo() { yield return null; }
