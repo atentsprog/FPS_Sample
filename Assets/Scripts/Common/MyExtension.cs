@@ -9,6 +9,14 @@ using UnityEngine;
 /// </summary>
 static public class MyExtension
 {
+    static public Vector3 AngleToYDirection(this Vector3 baseDirection, float angle)
+    {
+        var quaternion = Quaternion.Euler(0, angle, 0);
+        Vector3 newDirection = quaternion * baseDirection;
+
+        return newDirection;
+    }
+
     static public string ToNumber(this int value)
     {
         return $"{value:N0}";
