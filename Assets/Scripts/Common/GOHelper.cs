@@ -26,28 +26,28 @@ public class GOHelper : MonoBehaviour
     private void OnEnable()
     {
         if (OnDestroyLog)
-            WriteLog();
+            WriteLog("OnEnable");
     }
 
     // 게임 오브젝트 비활성화될때
     private void OnDisable()
     {
         if (OnDisableLog)
-            WriteLog();
+            WriteLog("OnDisable");
     }
 
     // 게임 오브젝트 파괴될때
     private void OnDestroy()
     {
         if (OnDestroyLog)
-            WriteLog();
+            WriteLog("OnDestroy");
     }
 
-    private void WriteLog()
+    private void WriteLog(string log)
     {
         if (StopOnLog)
-            Debug.LogError(transform.GetPath(), transform);
+            Debug.LogError(log + ":" + transform.GetPath(), transform);
         else
-            Debug.Log(transform.GetPath());
+            Debug.Log(log + ":" + transform.GetPath());
     }
 }
