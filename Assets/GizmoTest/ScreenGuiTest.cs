@@ -26,8 +26,14 @@ public class ScreenGuiTest : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        // 디버그_라인그리기
+        if (EditorOption.Options[OptionType.디버그_라인그리기] == false)
+            return;
+
+
         ScreenGuiTest item = this;
         Transform tr = item.transform;
+            
         Handles.color = Color.red;
         float halfAngle = item.viewingAngle * 0.5f;
 

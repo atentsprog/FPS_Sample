@@ -16,9 +16,9 @@ public class EditorOptionConfig : EditorWindow
     void OnGUI()
     {
         mPos = GUILayout.BeginScrollView(mPos);
-        if(GUILayout.Button("테스트 버튼"))
+        if(GUILayout.Button("콤포 넌트 경로 복사"))
         {
-            Debug.Log("테스트 버튼 누름");
+            EditorUtil.CopyComponentPath();
         }
 
         for (OptionType i = OptionType.StartIndex + 1; i < OptionType.LastIndex; i++)

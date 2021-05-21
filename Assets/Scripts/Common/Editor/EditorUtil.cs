@@ -17,7 +17,7 @@ public class EditorUtil
     /// 선택한 콤포넌트의 주소를 복사한다.
     /// </summary>
     [MenuItem("Util/Copy Component Path %T")]
-    private static void CopyComponentPath()
+    public static void CopyComponentPath()
     {
         StringBuilder sb2 = new StringBuilder();
 
