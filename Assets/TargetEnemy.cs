@@ -9,16 +9,36 @@ public class TargetEnemy : MonoBehaviour
     public Transform target;
     public NavMeshAgent agent;
     private float moveSpeed;
+    public List<Transform> wayPoints;
 
+    public Animator animator;
+    public int wayPointIndex = 0;
     // 타겟을 매프레임 쫒아가자.
     IEnumerator Start()
     {
+        animator = GetComponent<Animator>();
+        agent = GetComponent<NavMeshAgent>();
         moveSpeed = agent.speed;
+
+        // 첫번째 웨이 포인트로 가자.
+        animator.Play("run");
         while (true)
         {
-            agent.destination = target.position;
-            
-            yield return null;
+            agent.destination = wayPoints[wayPointIndex].position;
+            while (true)
+            {
+                if (agent.remainingDistance == 0)
+                {
+                    Debug.Log("도착");
+                    // 2번째 웨이 포인트로 이동.
+                    wayPointIndex++;
+                }
+                else
+                {
+                    // 기다리자.
+                }
+                //yield return null;
+            }
         }
     }
     private IEnumerator ChangeSpeed(float stopTime)
