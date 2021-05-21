@@ -17,23 +17,54 @@ public class EditorGUI_Enemy : Editor
         Enemy item = (Enemy)target;
         Transform tr = item.transform;
 
+        // 씬뷰에서 viewingDistance 조정가능하게 함.
+        item.viewingDistance = (float)Handles.ScaleValueHandle(item.viewingDistance, tr.position + tr.forward * item.viewingDistance, tr.rotation, 1, Handles.ConeHandleCap, 1);
+    }
+}
+#endif
+
+
+public class Enemy : MonoBehaviour
+{
+    public Animator animator;
+    public Transform attackTarget;
+    public NavMeshAgent agent;
+    private float moveSpeed;
+
+    public float viewingDistance = 3;
+    public float viewingAngle = 90;
+
+    public float attackDistance = 2;
+
+    private void OnDrawGizmos()
+    {
+        //Enemy item = this;
+        Transform tr = transform;
+
         // 탐색 가능 거리 표시
         Handles.color = Color.yellow;
-        DrawArc(tr, item.viewingAngle, item.viewingDistance);
+        DrawArc(tr, viewingAngle, viewingDistance);
 
         // 공격 가능 거리 표시
         Handles.color = Color.red;
-        DrawArc(tr, item.viewingAngle, item.attackDistance);
+        DrawArc(tr, viewingAngle, attackDistance);
 
 
         // 지금 이동 하는 타겟 위치로 직선 긋기.
-        DrawMoveToTarget(item, tr);
+        DrawMoveToTarget(this, tr);
 
         // 지금 이동 하는 NavAgent의 위치에 경로 표시하기.
 
 
-        // 씬뷰에서 viewingDistance 조정가능하게 함.
-        item.viewingDistance = (float)Handles.ScaleValueHandle(item.viewingDistance, tr.position + tr.forward * item.viewingDistance, tr.rotation, 1, Handles.ConeHandleCap, 1);
+        //// 씬뷰에서 viewingDistance 조정가능하게 함.
+        //item.viewingDistance = (float)Handles.ScaleValueHandle(item.viewingDistance, tr.position + tr.forward * item.viewingDistance, tr.rotation, 1, Handles.ConeHandleCap, 1);
+
+        GUIStyle style = new GUIStyle();
+        style.fontStyle = FontStyle.Bold;
+        style.normal.textColor = Color.red;
+        Vector3 namePos = tr.position;
+        namePos.z += 0.5f;
+        Handles.Label(namePos, FSM.ToString(), style);
     }
 
 
@@ -57,21 +88,6 @@ public class EditorGUI_Enemy : Editor
         Handles.DrawLine(tr.position, tr.position + tr.forward.AngleToYDirection(-halfAngle) * distance);     // 왼쪽선 그리기.
         Handles.DrawLine(tr.position, tr.position + tr.forward.AngleToYDirection(halfAngle) * distance);      // 오른쪽선 그리기.
     }
-}
-#endif
-
-
-public class Enemy : MonoBehaviour
-{
-    public Animator animator;
-    public Transform attackTarget;
-    public NavMeshAgent agent;
-    private float moveSpeed;
-
-    public float viewingDistance = 3;
-    public float viewingAngle = 90;
-
-    public float attackDistance = 2;
 
     /// 상태 1) 페트롤 : 지정된 웨이 포인트 이동, 
     ///     로밍이 끝나는 탐색 조건 : 
@@ -151,7 +167,7 @@ public class Enemy : MonoBehaviour
     Coroutine fsmHandle;
     Func<IEnumerator> currentFSM;
     FsmState fsm;
-    FsmState FSM
+    public FsmState FSM
     {
         set
         {
@@ -169,6 +185,7 @@ public class Enemy : MonoBehaviour
                 StopCoroutine(fsmHandle);
             currentFSM = fsmAction[fsm];
         }
+        get{ return fsm; }
     }
 
     public List<Transform> wayPoints;
