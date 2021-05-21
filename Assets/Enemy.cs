@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+
 using UnityEngine;
 using UnityEngine.AI;
+
+
 
 public class Enemy : MonoBehaviour
 {
@@ -13,15 +13,16 @@ public class Enemy : MonoBehaviour
     public NavMeshAgent agent;
     private float moveSpeed;
 
+    public float seeDistance = 3;
+    public float seeAngle = 90;
+    //void OnDrawGizmos() // : 선택하지 않았을때도 기즈모를 보이게 하는 함수.
+    //{
+    //    Gizmos.DrawWireSphere(transform.position, seeDistance);
 
-    //OnDrawGizmosSelected : 선택했을때만 보이는 함수.
-    void OnDrawGizmos()
-    {
-        // Draw a yellow sphere at the transform's position
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawSphere(transform.position, 1);
-    }
-
+    //    Vector3.RotateTowards(transform.position, transform.forward, )
+    //    Vector3 rightAngle = transform.position + (transform.forward * seeDistance)
+    //    Gizmos.DrawLine(transform.position, transform.forward)
+    //}
     /// 상태 1) 로밍 : 지정된 웨이 포인트 이동, 
     ///     로밍이 끝나는 탐색 조건 : 
     ///         1. 시야 범위 안에 적이 들어 옴 ->  추적으로 전환.
@@ -79,6 +80,7 @@ public class Enemy : MonoBehaviour
     public GameObject attackedEffect;
     public GameObject dieEffect;
     public int hp = 3;
+
     /// <summary>
     /// 몬스터가 총알에 맞으면 호출된다
     /// </summary>
