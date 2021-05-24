@@ -30,6 +30,7 @@ public partial class TargetEnemy : MonoBehaviour
         yield return StartCoroutine(PetrolCo());
     }
 
+#if UNITY_EDITOR
     private void OnDrawGizmos()
     {
         if (EditorOption.Options[OptionType.디버그_라인그리기] == false)
@@ -50,6 +51,7 @@ public partial class TargetEnemy : MonoBehaviour
         Handles.DrawLine(tr.position, tr.position + tr.forward.AngleToYDirection(-halfAngle) * viewingDistance);
         Handles.DrawLine(tr.position, tr.position + tr.forward.AngleToYDirection(halfAngle) * viewingDistance);
     }
+#endif
 
     public float viewingDistance = 3;
     public float viewingAngle = 90f; // 시야각
