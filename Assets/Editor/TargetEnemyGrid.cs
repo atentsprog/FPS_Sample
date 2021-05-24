@@ -6,6 +6,9 @@ public class EditorGUI_TargetEnemy : Editor
 {
     void OnSceneGUI()
     {
+        if (EditorOption.Options[OptionType.디버그_라인그리기] == false)
+            return;
+
         TargetEnemy item = (TargetEnemy)target;
         Transform tr = item.transform;
         item.viewingDistance = (float)Handles.ScaleValueHandle(item.viewingDistance

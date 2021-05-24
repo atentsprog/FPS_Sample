@@ -32,6 +32,9 @@ public partial class TargetEnemy : MonoBehaviour
 
     private void OnDrawGizmos()
     {
+        if (EditorOption.Options[OptionType.디버그_라인그리기] == false)
+            return;
+
         //Gizmos.DrawWireSphere(transform.position, viewingDistance);
 
         // 시야각표시
