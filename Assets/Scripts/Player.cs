@@ -41,8 +41,20 @@ public class Player : MonoBehaviour
         cameraTr.rotation = rotation;
     }
 
+    
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Mouse1))
+        {
+            // 줌인
+            Camera.main.fieldOfView = 10;
+        }
+        if (Input.GetKeyUp(KeyCode.Mouse1))
+        {
+            // 줌아웃
+            Camera.main.fieldOfView = 60;
+        }
+
         UseWeapon();
 
         // WASD, W위로, A왼쪽,S아래, D오른쪽
