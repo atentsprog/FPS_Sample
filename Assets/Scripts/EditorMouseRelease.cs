@@ -6,10 +6,10 @@ using UnityEngine;
 
 public class EditorMouseRelease : MonoBehaviour
 {
-    FpsControllerLPFP controller;
+    MonoBehaviour controller;
     void Start()
     {
-        controller = GetComponent<FpsControllerLPFP>();
+        controller = GetComponent<MonoBehaviour>();
     }
 
 

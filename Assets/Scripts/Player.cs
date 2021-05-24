@@ -8,7 +8,7 @@ public class Player : MonoBehaviour
     //움직이기
     //기존 코드 재사용, 보는 방향으로 이동
 
-    //카메라 회전
+    //카메라 회전 // 
 
     //총쏘기
     //트레일 렌더러, 물리로 던지기
@@ -24,6 +24,7 @@ public class Player : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         cameraTr = transform.Find("Main Camera");
+        Cursor.lockState = CursorLockMode.Locked;
     }
     private void CameraRotate()
     {
