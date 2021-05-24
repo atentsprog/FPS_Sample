@@ -43,10 +43,30 @@ public class Player : MonoBehaviour
 
     private void Update()
     {
+        UseWeapon();
+
         // WASD, W위로, A왼쪽,S아래, D오른쪽
         Move();
 
         CameraRotate();
+    }
+
+    public GameObject bullet;   // 총알
+    public GameObject grenade; //수류탄
+    public Transform bulletSpawnPosition;
+    private void UseWeapon()
+    {
+        // 마우스 클릭하면 총알 발사.
+        if(Input.GetKey(KeyCode.Mouse0))
+        {
+            Instantiate(bullet, bulletSpawnPosition.position, transform.rotation);
+        }
+
+        // g키 누르면 수류탄 발사.
+        if (Input.GetKey(KeyCode.G))
+        {
+            Instantiate(grenade, bulletSpawnPosition.position, transform.rotation);
+        }
     }
 
     private void Move()
