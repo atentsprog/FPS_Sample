@@ -23,6 +23,7 @@ public partial class TargetEnemy : MonoBehaviour
     // 타겟을 매프레임 쫒아가자.
     IEnumerator Start()
     {
+        //player = Player.instace;
         animator = GetComponent<Animator>();
         agent = GetComponent<NavMeshAgent>();
         moveSpeed = agent.speed;

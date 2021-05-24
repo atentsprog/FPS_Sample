@@ -792,8 +792,8 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 69c0fd068809d2a4cafbb12fd8e38326, type: 2}
-  - {fileID: 2100000, guid: f1ffde0cab3b53e4b8db6c78d825b21a, type: 2}
+  - {fileID: 2100000, guid: d4fac2c6f0f48f0478857632381687fc, type: 2}
+  - {fileID: 2100000, guid: d429f2e1ecbb78343acb4161bc83b565, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -856,8 +856,10 @@ GameObject:
   m_Component:
   - component: {fileID: 3789183920479349938}
   - component: {fileID: 3789183920472179566}
+  - component: {fileID: 4715076424269352004}
+  - component: {fileID: 4715076424269352005}
   m_Layer: 0
-  m_Name: Soldier_demo
+  m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -898,6 +900,58 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &4715076424269352004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3789183920479449298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 32542634a2a610c41b716cb5516d99f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  handle1: 1
+  handle2: 0
+  handle3: 0
+  direction: {x: 0, y: 0, z: 0}
+  player: {fileID: 0}
+  agent: {fileID: 0}
+  wayPoints:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  animator: {fileID: 0}
+  wayPointIndex: 0
+  viewingDistance: 5.9
+  viewingAngle: 121.7
+  attackedEffect: {fileID: 0}
+  destroyEffect: {fileID: 0}
+  hp: 3
+--- !u!195 &4715076424269352005
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3789183920479449298}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 1e+10
+  avoidancePriority: 50
+  m_AngularSpeed: 1e+10
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2.58
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &3789183920479449300
 GameObject:
   m_ObjectHideFlags: 0
