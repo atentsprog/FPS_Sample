@@ -70,7 +70,7 @@ public partial class TargetEnemy : MonoBehaviour
             {
                 if (agent.remainingDistance < 0.1f)
                 {
-                    Debug.Log("도착");
+                    //Debug.Log("도착");
                     // 2번째 웨이 포인트로 이동.
                     break;
                 }
@@ -94,7 +94,7 @@ public partial class TargetEnemy : MonoBehaviour
 
                     if (insideViewingAngle)
                     { 
-                        Debug.LogWarning("찾았다 -> 추적 상태로 전환");
+                        //Debug.LogWarning("찾았다 -> 추적 상태로 전환");
                     }
                 }
 

@@ -57,15 +57,15 @@ public class Player : MonoBehaviour
     private void UseWeapon()
     {
         // 마우스 클릭하면 총알 발사.
-        if(Input.GetKey(KeyCode.Mouse0))
+        if(Input.GetKeyDown(KeyCode.Mouse0))
         {
-            Instantiate(bullet, bulletSpawnPosition.position, transform.rotation);
+            Instantiate(bullet, bulletSpawnPosition.position, cameraTr.rotation);
         }
 
         // g키 누르면 수류탄 발사.
-        if (Input.GetKey(KeyCode.G))
+        if (Input.GetKeyDown(KeyCode.G))
         {
-            Instantiate(grenade, bulletSpawnPosition.position, transform.rotation);
+            Instantiate(grenade, bulletSpawnPosition.position, cameraTr.rotation);
         }
     }
 

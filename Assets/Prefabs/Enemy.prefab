@@ -162,6 +162,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3789183920479349898}
+  - component: {fileID: 1044627004387556622}
   m_Layer: 0
   m_Name: Bip001 Head
   m_TagString: Untagged
@@ -184,6 +185,19 @@ Transform:
   m_Father: {fileID: 3789183920479349904}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!135 &1044627004387556622
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3789183920479449258}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.21
+  m_Center: {x: -0.1, y: 0, z: 0}
 --- !u!1 &3789183920479449260
 GameObject:
   m_ObjectHideFlags: 0
@@ -858,6 +872,7 @@ GameObject:
   - component: {fileID: 3789183920472179566}
   - component: {fileID: 4715076424269352004}
   - component: {fileID: 4715076424269352005}
+  - component: {fileID: -3439343181546359605}
   m_Layer: 0
   m_Name: Enemy
   m_TagString: Untagged
@@ -927,8 +942,8 @@ MonoBehaviour:
   wayPointIndex: 0
   viewingDistance: 5.9
   viewingAngle: 121.7
-  attackedEffect: {fileID: 0}
-  destroyEffect: {fileID: 0}
+  attackedEffect: {fileID: 1427962332153456, guid: 301583a5af63a494298d60cd9f296909, type: 3}
+  destroyEffect: {fileID: 1126181125208960, guid: ca26d7307564ff848b29e32bbe6279ef, type: 3}
   hp: 3
 --- !u!195 &4715076424269352005
 NavMeshAgent:
@@ -952,6 +967,19 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 4
+--- !u!65 &-3439343181546359605
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3789183920479449298}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 0.85, y: 1.86, z: 0.64}
+  m_Center: {x: 0, y: 1.18, z: 0}
 --- !u!1 &3789183920479449300
 GameObject:
   m_ObjectHideFlags: 0
