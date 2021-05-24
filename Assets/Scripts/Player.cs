@@ -16,7 +16,7 @@ public class Player : MonoBehaviour
     //수류탄 던지기
 
     public float speed = 0.1f;
-    public float mouseSensitivity = 1f;
+    public float mouseSensitivity = 40f;
     public Animator animator;
     public Transform cameraTr;
     
@@ -53,15 +53,18 @@ public class Player : MonoBehaviour
         float moveX = 0;
         float moveZ = 0;
         // || -> or
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) moveZ = 1;
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow))moveZ = 1;
         if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow)) moveZ = -1;
 
         if (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow)) moveX = -1;
         if (Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow)) moveX = 1;
-        Vector3 position = transform.position;
-        position.x = position.x + moveX * speed * Time.deltaTime;
-        position.z = position.z + moveZ * speed * Time.deltaTime;
-        transform.position = position;
+
+        //// 이트렌스폼의 앞쪽으로 움직여야 한다.
+        Vector3 move = transform.forward * moveZ + transform.right * moveX;
+        move.Normalize();
+
+        transform.Translate(move * speed * Time.deltaTime, Space.World);
+
 
         if (animator.GetCurrentAnimatorStateInfo(0).IsName("shoot") == false)
         {
